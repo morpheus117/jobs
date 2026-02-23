@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import SearchableSelect from './components/SearchableSelect'
 import WageDisplay from './components/WageDisplay'
 import SalaryBarChart from './components/SalaryBarChart'
+import jobImages from './data/jobImages'
 import './App.css'
 
 function App() {
@@ -120,6 +121,12 @@ function App() {
           wage={currentWage}
           occupation={selectedOccupation}
           state={selectedState}
+          image={selectedOccupation && jobImages[selectedOccupation]
+            ? `/images/jobs/${jobImages[selectedOccupation].file}`
+            : null}
+          imageAlt={selectedOccupation && jobImages[selectedOccupation]
+            ? jobImages[selectedOccupation].alt
+            : null}
         />
 
         {/* Chart */}
