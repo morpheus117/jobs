@@ -17,7 +17,7 @@ function App() {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    fetch('/salaries.json')
+    fetch(`${import.meta.env.BASE_URL}salaries.json`)
       .then(res => {
         if (!res.ok) throw new Error('No se pudo cargar salaries.json')
         return res.json()
