@@ -1,0 +1,549 @@
+/* ── Reset & variables ─────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --primary:        #1e40af;
+  --primary-dark:   #1e3a8a;
+  --primary-light:  #3b82f6;
+  --accent:         #f59e0b;
+  --accent-dark:    #d97706;
+  --bg:             #f1f5f9;
+  --card:           #ffffff;
+  --text:           #0f172a;
+  --text-muted:     #64748b;
+  --border:         #e2e8f0;
+  --shadow-sm:      0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.06);
+  --shadow-md:      0 4px 6px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.06);
+  --shadow-lg:      0 10px 25px rgba(0,0,0,.08), 0 4px 10px rgba(0,0,0,.05);
+  --radius:         14px;
+  --radius-sm:      8px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+               'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── App shell ─────────────────────────────────────────────── */
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ── Header ────────────────────────────────────────────────── */
+.header {
+  background: linear-gradient(135deg, #0f2878 0%, #1e40af 55%, #2563eb 100%);
+  color: #fff;
+  padding: 2rem 1.5rem 2.25rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.header::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+.header-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.header h1 {
+  font-size: clamp(1.4rem, 4vw, 2.25rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: 0.4rem;
+}
+
+.header p {
+  font-size: 0.875rem;
+  opacity: 0.75;
+  font-weight: 400;
+}
+
+.header-badge {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.85);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 0.3rem 0.65rem;
+  border-radius: 100px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+
+/* ── Main layout ───────────────────────────────────────────── */
+.main {
+  flex: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 1.75rem 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* ── Card base ─────────────────────────────────────────────── */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border);
+}
+
+/* ── Controls card ─────────────────────────────────────────── */
+.controls-card {
+  padding: 1.5rem;
+}
+
+.controls-grid {
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  gap: 1rem;
+  align-items: end;
+}
+
+@media (max-width: 600px) {
+  .controls-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.control-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+/* Native state select */
+.native-select {
+  width: 100%;
+  padding: 0.6rem 2rem 0.6rem 0.875rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  color: var(--text);
+  background-color: #fff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  appearance: none;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  height: 42px;
+}
+
+.native-select:focus {
+  outline: none;
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.18);
+}
+
+/* ── Searchable Select ─────────────────────────────────────── */
+.searchable-select {
+  position: relative;
+}
+
+.select-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0 0.875rem;
+  height: 42px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  user-select: none;
+}
+
+.select-display:hover,
+.select-display.open {
+  border-color: var(--primary-light);
+}
+
+.select-display.open {
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.18);
+}
+
+.select-value {
+  font-size: 0.9rem;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.select-placeholder {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.chevron {
+  width: 15px;
+  height: 15px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.chevron.rotated {
+  transform: rotate(180deg);
+}
+
+.select-dropdown {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  z-index: 200;
+  overflow: hidden;
+}
+
+.select-search-wrap {
+  position: relative;
+  border-bottom: 1px solid var(--border);
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 15px;
+  height: 15px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.select-search {
+  width: 100%;
+  padding: 0.6rem 0.75rem 0.6rem 2.25rem;
+  border: none;
+  font-size: 0.875rem;
+  color: var(--text);
+  background: transparent;
+  outline: none;
+}
+
+.select-search::placeholder {
+  color: var(--text-muted);
+}
+
+.select-options {
+  list-style: none;
+  max-height: 228px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.select-options::-webkit-scrollbar {
+  width: 4px;
+}
+.select-options::-webkit-scrollbar-track { background: transparent; }
+.select-options::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+.select-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.55rem 0.875rem;
+  font-size: 0.875rem;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.select-option:hover {
+  background: #f8fafc;
+}
+
+.select-option.selected {
+  background: #eff6ff;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.check-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.select-empty {
+  padding: 1.25rem 0.875rem;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  text-align: center;
+  font-style: italic;
+}
+
+/* ── Wage display card ─────────────────────────────────────── */
+.wage-card {
+  background: linear-gradient(135deg, #0f2878 0%, #1e40af 55%, #2563eb 100%);
+  border-radius: var(--radius);
+  padding: 2.5rem 2rem;
+  color: #fff;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(30, 64, 175, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+
+.wage-card::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 220px;
+  height: 220px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 50%;
+}
+
+.wage-card::after {
+  content: '';
+  position: absolute;
+  bottom: -40px;
+  left: -40px;
+  width: 160px;
+  height: 160px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 50%;
+}
+
+.wage-badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 100px;
+  padding: 0.25rem 0.75rem;
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.wage-amount {
+  font-size: clamp(2.75rem, 9vw, 5rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.wage-na {
+  font-size: 2rem;
+  opacity: 0.4;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.wage-meta {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-bottom: 0.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.wage-occupation {
+  font-weight: 600;
+}
+
+.wage-dot {
+  margin: 0 0.4rem;
+  opacity: 0.5;
+}
+
+.wage-state {
+  font-weight: 400;
+}
+
+.wage-hourly {
+  font-size: 0.78rem;
+  opacity: 0.55;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Chart card ────────────────────────────────────────────── */
+.chart-card {
+  padding: 1.75rem;
+}
+
+.chart-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.chart-header h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.2rem;
+}
+
+.chart-subtitle {
+  font-size: 0.825rem;
+  color: var(--text-muted);
+}
+
+.chart-count {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 0.2rem 0.65rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.legend-dot.blue  { background: rgba(59,130,246,0.85); }
+.legend-dot.amber { background: rgba(245,158,11,0.9); }
+
+.chart-container {
+  position: relative;
+  height: 320px;
+}
+
+.chart-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  gap: 0.75rem;
+  color: var(--text-muted);
+}
+
+.chart-empty svg {
+  width: 36px;
+  height: 36px;
+  opacity: 0.4;
+}
+
+.chart-empty p {
+  font-size: 0.875rem;
+}
+
+/* ── Loading / Error states ────────────────────────────────── */
+.state-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  min-height: 100vh;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.state-screen.error {
+  color: #dc2626;
+}
+
+.state-screen code {
+  background: #f1f5f9;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary-light);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Footer ────────────────────────────────────────────────── */
+.footer {
+  text-align: center;
+  padding: 1.25rem 1.5rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  background: var(--card);
+}
