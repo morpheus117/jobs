@@ -3,7 +3,13 @@ import SearchableSelect from './components/SearchableSelect'
 import WageDisplay from './components/WageDisplay'
 import SalaryBarChart from './components/SalaryBarChart'
 import jobImages from './data/jobImages'
+import { useOpenverseImages } from './hooks/useOpenverseImages'
 import './App.css'
+
+// Update OEWS_YEAR each annual BLS release (e.g. 2024 data → '24')
+const OEWS_YEAR = '24'
+const BLS_EXCEL_URL = `https://www.bls.gov/oes/special.requests/oesm${OEWS_YEAR}nat.xlsx`
+const BLS_TABLES_URL = 'https://www.bls.gov/oes/tables.htm'
 
 function App() {
   const [data, setData] = useState([])
@@ -15,8 +21,14 @@ function App() {
   const [chartData, setChartData] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  // Incrementing this re-triggers the salary data fetch (refresh button)
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  const { images: ovImages, loading: ovLoading } = useOpenverseImages(selectedOccupation)
 
   useEffect(() => {
+    setLoading(true)
+    setError(null)
     fetch(`${import.meta.env.BASE_URL}salaries.json`)
       .then(res => {
         if (!res.ok) throw new Error('No se pudo cargar salaries.json')
@@ -36,7 +48,7 @@ function App() {
         setError(err.message)
         setLoading(false)
       })
-  }, [])
+  }, [refreshKey])
 
   useEffect(() => {
     if (!selectedOccupation || !selectedState || data.length === 0) return
@@ -53,6 +65,16 @@ function App() {
     setChartData(top10)
   }, [selectedOccupation, selectedState, data])
 
+  // Static fallback image — path uses BASE_URL so it works on GitHub Pages (/jobs/)
+  const staticImage =
+    selectedOccupation && jobImages[selectedOccupation]
+      ? `${import.meta.env.BASE_URL}images/jobs/${jobImages[selectedOccupation].file}`
+      : null
+  const staticImageAlt =
+    selectedOccupation && jobImages[selectedOccupation]
+      ? jobImages[selectedOccupation].alt
+      : null
+
   if (loading) {
     return (
       <div className="state-screen">
@@ -67,6 +89,9 @@ function App() {
       <div className="state-screen error">
         <p>Error: {error}</p>
         <small>Asegúrate de que <code>public/salaries.json</code> existe.</small>
+        <button className="retry-btn" onClick={() => setRefreshKey(k => k + 1)}>
+          Reintentar
+        </button>
       </div>
     )
   }
@@ -79,7 +104,31 @@ function App() {
             <h1>US Salary Explorer (OEWS)</h1>
             <p>Explora salarios ocupacionales por estado · Bureau of Labor Statistics</p>
           </div>
-          <div className="header-badge">BLS · OEWS</div>
+          <div className="header-actions">
+            <div className="header-badge">BLS · OEWS</div>
+            <button
+              className={`refresh-btn${loading ? ' spinning' : ''}`}
+              onClick={() => setRefreshKey(k => k + 1)}
+              disabled={loading}
+              title="Actualizar datos de salarios"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+                <path d="M21 3v5h-5" />
+                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+                <path d="M8 16H3v5" />
+              </svg>
+              Actualizar
+            </button>
+          </div>
         </div>
       </header>
 
@@ -116,17 +165,15 @@ function App() {
           </div>
         </section>
 
-        {/* Wage display */}
+        {/* Wage display with Openverse image carousel */}
         <WageDisplay
           wage={currentWage}
           occupation={selectedOccupation}
           state={selectedState}
-          image={selectedOccupation && jobImages[selectedOccupation]
-            ? `/images/jobs/${jobImages[selectedOccupation].file}`
-            : null}
-          imageAlt={selectedOccupation && jobImages[selectedOccupation]
-            ? jobImages[selectedOccupation].alt
-            : null}
+          images={ovImages}
+          imageLoading={ovLoading}
+          staticImage={staticImage}
+          staticImageAlt={staticImageAlt}
         />
 
         {/* Chart */}
@@ -136,9 +183,31 @@ function App() {
               <h2>Top 10 estados por salario anual</h2>
               <p className="chart-subtitle">{selectedOccupation}</p>
             </div>
-            <span className="chart-count">
-              {chartData.length} estados
-            </span>
+            <div className="chart-header-right">
+              <span className="chart-count">{chartData.length} estados</span>
+              {/* Direct download of the BLS OEWS national Excel file */}
+              <a
+                href={BLS_EXCEL_URL}
+                className="download-btn"
+                download
+                title="Descargar datos OEWS 2024 (Excel nacional)"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                Excel OEWS
+              </a>
+            </div>
           </div>
           <SalaryBarChart data={chartData} selectedState={selectedState} />
         </section>
@@ -148,7 +217,10 @@ function App() {
         <p>
           Fuente: Bureau of Labor Statistics,{' '}
           <strong>Occupational Employment and Wage Statistics (OEWS)</strong>.
-          Datos de muestra con fines ilustrativos.
+          Datos de muestra con fines ilustrativos.{' '}
+          <a href={BLS_TABLES_URL} target="_blank" rel="noopener noreferrer">
+            Ver todos los datos ↗
+          </a>
         </p>
       </footer>
     </div>
