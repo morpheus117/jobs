@@ -107,9 +107,15 @@ async function blsFetch(seriesIds) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ seriesid: seriesIds, startyear: '2024', endyear: '2024' }),
   })
-  if (!res.ok) throw new Error(`BLS API HTTP ${res.status}`)
+  if (!res.ok) {
+    const body = await res.text().catch(() => '')
+    throw new Error(`BLS API HTTP ${res.status}${body ? ': ' + body.slice(0, 300) : ''}`)
+  }
   const json = await res.json()
-  if (json.status !== 'REQUEST_SUCCEEDED') throw new Error(json.message?.[0] || 'BLS API error')
+  if (json.status !== 'REQUEST_SUCCEEDED') {
+    const msgs = Array.isArray(json.message) ? json.message.join(' | ') : (json.message ?? 'BLS API error')
+    throw new Error(msgs || 'BLS API error')
+  }
   return json.Results?.series ?? []
 }
 

@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { version } from '../package.json'
 import SearchableSelect from './components/SearchableSelect'
 import WageDisplay from './components/WageDisplay'
 import SalaryBarChart from './components/SalaryBarChart'
@@ -134,7 +135,7 @@ function App() {
             <p>Explora salarios ocupacionales por estado · Bureau of Labor Statistics</p>
           </div>
           <div className="header-actions">
-            <div className="header-badge">BLS · OEWS</div>
+            <div className="header-badge">BLS · OEWS · v{version}</div>
             <button
               className={`refresh-btn${loading ? ' spinning' : ''}`}
               onClick={() => setRefreshKey(k => k + 1)}

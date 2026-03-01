@@ -53,7 +53,7 @@ export default function IndustryBreakdown({ industries, loading, error, occupati
         </div>
         <div className="metric-fallback">
           <span className="metric-fallback-icon">⚠</span>
-          <span>Industry data unavailable (BLS API rate limit or network error).</span>
+          <span>Industry data unavailable: {error}</span>
           <a
             href="https://www.bls.gov/oes/current/oessrci.htm"
             target="_blank"

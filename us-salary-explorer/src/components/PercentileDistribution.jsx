@@ -89,7 +89,10 @@ function PercentileBar({ data, mode }) {
           <div
             key={m.key}
             className={`pct-label${m.highlight ? ' pct-label-highlight' : ''}`}
-            style={{ left: `${m.pos}%` }}
+            style={{
+              left: `${m.pos}%`,
+              transform: m.pos <= 5 ? 'translateX(0)' : m.pos >= 95 ? 'translateX(-100%)' : 'translateX(-50%)',
+            }}
           >
             <span className="pct-label-name">{m.label}</span>
             <span className="pct-label-val">{fmt(m.val, mode)}</span>
@@ -160,8 +163,8 @@ export default function PercentileDistribution({ nationalData, stateData, stateN
       {!loading && error && (
         <div className="metric-fallback">
           <span className="metric-fallback-icon">⚠</span>
-          <span>BLS API unavailable — showing state-level data only.</span>
-          {(error.includes('rate') || error.toLowerCase().includes('quota')) && <span> (Daily quota reached — resets at midnight ET)</span>}
+          <span>BLS API error: {error}</span>
+          {stateData && <span> — showing state-level data only.</span>}
         </div>
       )}
 
