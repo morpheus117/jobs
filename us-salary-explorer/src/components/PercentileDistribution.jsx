@@ -39,23 +39,25 @@ function PercentileBar({ data, mode }) {
   const P75  = isHourly ? data.h_pct75   : data.a_pct75
   const P90  = isHourly ? data.h_pct90   : data.a_pct90
 
-  if (!P10 && !P90) {
+  // Fall back to inner percentiles when BLS suppresses extremes (e.g. values > $115/hr cap)
+  const minVal = P10 ?? P25
+  const maxVal = P90 ?? P75
+
+  if (minVal == null || maxVal == null || minVal >= maxVal) {
     return <p className="pct-unavailable">Percentile data not available for this occupation.</p>
   }
 
-  const minVal = P10
-  const maxVal = P90
   const pP25  = pct(P25, minVal, maxVal)
   const pMed  = pct(MED, minVal, maxVal)
   const pMean = pct(MEAN, minVal, maxVal)
   const pP75  = pct(P75, minVal, maxVal)
 
   const markers = [
-    { label: 'P10', val: P10, pos: 0,     key: 'p10' },
+    { label: 'P10', val: P10, pos: P10 != null ? pct(P10, minVal, maxVal) : null, key: 'p10' },
     { label: 'P25', val: P25, pos: pP25,  key: 'p25' },
     { label: 'Median', val: MED, pos: pMed, key: 'med', highlight: true },
     { label: 'P75', val: P75, pos: pP75,  key: 'p75' },
-    { label: 'P90', val: P90, pos: 100,   key: 'p90' },
+    { label: 'P90', val: P90, pos: P90 != null ? pct(P90, minVal, maxVal) : null, key: 'p90' },
   ].filter(m => m.val != null && m.pos != null)
 
   return (
@@ -95,7 +97,7 @@ function PercentileBar({ data, mode }) {
         ))}
       </div>
 
-      {!hourly_available && !isHourly && (
+      {hourly_available === false && !isHourly && (
         <p className="pct-note">* This occupation reports annual wages only (no hourly data).</p>
       )}
     </div>
@@ -159,7 +161,7 @@ export default function PercentileDistribution({ nationalData, stateData, stateN
         <div className="metric-fallback">
           <span className="metric-fallback-icon">⚠</span>
           <span>BLS API unavailable — showing state-level data only.</span>
-          {error.includes('rate') && <span> (Rate limit reached)</span>}
+          {(error.includes('rate') || error.toLowerCase().includes('quota')) && <span> (Daily quota reached — resets at midnight ET)</span>}
         </div>
       )}
 

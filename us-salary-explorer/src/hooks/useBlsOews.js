@@ -105,7 +105,7 @@ async function blsFetch(seriesIds) {
   const res = await fetch(BLS_API, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ seriesid: seriesIds, startyear: '2023', endyear: '2024' }),
+    body: JSON.stringify({ seriesid: seriesIds, startyear: '2024', endyear: '2024' }),
   })
   if (!res.ok) throw new Error(`BLS API HTTP ${res.status}`)
   const json = await res.json()
@@ -158,22 +158,13 @@ export function useBlsOews(occCode) {
         a_pct90:   natIdx[natSeries(occCode, DT.a_pct90)],
       }
 
-      // ── Request 2: industry breakdown ─────────────────────────────────────
-      const indSeriesIds = NAICS_SECTORS.flatMap(({ code }) => [
-        indSeries(occCode, code, DT.employment),
-        indSeries(occCode, code, DT.a_mean),
-      ])
-      const indRaw = await blsFetch(indSeriesIds)
-      const indIdx = indexSeries(indRaw)
-
-      const industries = NAICS_SECTORS.map(({ code, title }) => ({
-        naics: code,
-        naics_title: title,
-        tot_emp: indIdx[indSeries(occCode, code, DT.employment)] ?? null,
-        a_mean:  indIdx[indSeries(occCode, code, DT.a_mean)] ?? null,
-      }))
-      .filter(d => d.tot_emp != null && d.tot_emp >= 100)
-      .sort((a, b) => b.tot_emp - a.tot_emp)
+      // ── Industry breakdown ────────────────────────────────────────────────
+      // NOTE: National × industry × occupation series do not exist in the BLS
+      // public API v2 (all return "Series does not exist"). Industry breakdown
+      // data must be sourced from the offline national flat file (oewsnat.xlsx)
+      // processed into oews_national.json. Until that data is available, the
+      // industry breakdown section shows the "no data" empty state.
+      const industries = []
 
       return { national, industries }
     }
