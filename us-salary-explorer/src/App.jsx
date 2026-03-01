@@ -1,5 +1,53 @@
 import { useState, useEffect, useMemo } from 'react'
 import { version } from '../package.json'
+
+/**
+ * USA Flag — inline SVG with 13 stripes and a star-field canton.
+ * Rendered at display size via width/height props; viewBox is 190×100
+ * matching the official 19:10 aspect ratio.
+ */
+function USAFlag({ width = 76, height = 40 }) {
+  const stripes = 13
+  const sh = 100 / stripes          // stripe height in viewBox units
+  const cw = 76                     // canton width  (~40% of 190)
+  const ch = sh * 7                 // canton covers first 7 stripes
+
+  // 5-column × 5-row star grid, evenly spaced within the canton
+  const cols = [cw / 6, cw * 2 / 6, cw * 3 / 6, cw * 4 / 6, cw * 5 / 6]
+  const rows = [ch / 6, ch * 2 / 6, ch * 3 / 6, ch * 4 / 6, ch * 5 / 6]
+  const r = 2.6   // star circle radius
+
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 190 100"
+      width={width}
+      height={height}
+      role="img"
+      aria-label="United States flag"
+    >
+      {/* 13 alternating red/white stripes */}
+      {Array.from({ length: stripes }, (_, i) => (
+        <rect
+          key={i}
+          x={0}
+          y={i * sh}
+          width={190}
+          height={sh}
+          fill={i % 2 === 0 ? '#B22234' : '#FFFFFF'}
+        />
+      ))}
+      {/* Blue canton */}
+      <rect x={0} y={0} width={cw} height={ch} fill="#3C3B6E" />
+      {/* Stars (white circles) */}
+      {rows.map((sy, ri) =>
+        cols.map((sx, ci) => (
+          <circle key={`${ri}-${ci}`} cx={sx} cy={sy} r={r} fill="#FFFFFF" />
+        ))
+      )}
+    </svg>
+  )
+}
 import SearchableSelect from './components/SearchableSelect'
 import WageDisplay from './components/WageDisplay'
 import SalaryBarChart from './components/SalaryBarChart'
@@ -130,9 +178,14 @@ function App() {
     <div className="app">
       <header className="header">
         <div className="header-inner">
-          <div className="header-text">
-            <h1>US Salary Explorer (OEWS)</h1>
-            <p>Explora salarios ocupacionales por estado · Bureau of Labor Statistics</p>
+          <div className="header-left">
+            <div className="header-flag-wrap">
+              <USAFlag width={76} height={40} />
+            </div>
+            <div className="header-text">
+              <h1>US Salary Explorer</h1>
+              <p>Occupational wages by state · Bureau of Labor Statistics · OEWS</p>
+            </div>
           </div>
           <div className="header-actions">
             <div className="header-badge">BLS · OEWS · v{version}</div>
