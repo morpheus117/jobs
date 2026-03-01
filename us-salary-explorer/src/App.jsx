@@ -1,9 +1,14 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import SearchableSelect from './components/SearchableSelect'
 import WageDisplay from './components/WageDisplay'
 import SalaryBarChart from './components/SalaryBarChart'
+import PercentileDistribution from './components/PercentileDistribution'
+import EmploymentStats from './components/EmploymentStats'
+import IndustryBreakdown from './components/IndustryBreakdown'
 import jobImages from './data/jobImages'
 import { useOpenverseImages } from './hooks/useOpenverseImages'
+import { useOewsState } from './hooks/useOewsState'
+import { useBlsOews } from './hooks/useBlsOews'
 import './App.css'
 
 // Update OEWS_YEAR each annual BLS release (e.g. 2024 data → '24')
@@ -25,6 +30,30 @@ function App() {
   const [refreshKey, setRefreshKey] = useState(0)
 
   const { images: ovImages, loading: ovLoading } = useOpenverseImages(selectedOccupation)
+
+  // Derive SOC code from selected occupation title
+  const selectedOccCode = useMemo(
+    () => data.find(d => d.occ_title === selectedOccupation)?.occ_code ?? null,
+    [data, selectedOccupation]
+  )
+
+  // OEWS state-level data (percentiles, LQ, employment) — from static JSON
+  const {
+    stateRankings,
+    nonmetroEntries,
+    derivedNational,
+    getStateData,
+  } = useOewsState(selectedOccCode)
+
+  const oewsStateData = getStateData(selectedState)
+
+  // National OEWS data (percentiles, employment, industry breakdown) — from BLS API
+  const {
+    national: blsNational,
+    industries: blsIndustries,
+    loading: blsLoading,
+    error: blsError,
+  } = useBlsOews(selectedOccCode)
 
   useEffect(() => {
     setLoading(true)
@@ -211,6 +240,38 @@ function App() {
           </div>
           <SalaryBarChart data={chartData} selectedState={selectedState} />
         </section>
+
+        {/* ── Labor Market Insights ──────────────────────────────────────── */}
+        <div className="insights-grid">
+          {/* Metrics 1 & 7: Wage percentiles + hourly/annual breakdown */}
+          <PercentileDistribution
+            nationalData={blsNational}
+            stateData={oewsStateData}
+            stateName={selectedState}
+            occupation={selectedOccupation}
+            loading={blsLoading}
+            error={blsError}
+          />
+
+          {/* Metrics 3, 4, 5, 8: Employment, LQ, metro context, state rankings */}
+          <EmploymentStats
+            stateData={oewsStateData}
+            stateRankings={stateRankings}
+            nonmetroEntries={nonmetroEntries}
+            derivedNational={derivedNational}
+            nationalEmp={blsNational?.tot_emp ?? null}
+            selectedState={selectedState}
+            occupation={selectedOccupation}
+          />
+        </div>
+
+        {/* Metrics 2 & 6: Industry wages + top employing industries */}
+        <IndustryBreakdown
+          industries={blsIndustries}
+          loading={blsLoading}
+          error={blsError}
+          occupation={selectedOccupation}
+        />
       </main>
 
       <footer className="footer">

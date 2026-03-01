@@ -821,3 +821,602 @@ body {
 .footer a:hover {
   text-decoration: underline;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   LABOR MARKET INSIGHTS — 8 new metric cards
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Grid layout for the two side-by-side metric cards ────────── */
+.insights-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+@media (max-width: 860px) {
+  .insights-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Base metric card shared styles ──────────────────────────── */
+.metric-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.metric-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.metric-header h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.metric-subtitle {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.metric-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.metric-section-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.metric-section-hint {
+  font-size: 0.7rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: #94a3b8;
+}
+
+.metric-section-badge {
+  margin-left: auto;
+  background: var(--primary-light);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.metric-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding: 8px 0;
+}
+
+.spinner.sm {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+
+.metric-fallback {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fef9c3;
+  border: 1px solid #fde047;
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.8rem;
+  color: #713f12;
+  flex-wrap: wrap;
+}
+
+.metric-fallback-icon { font-size: 1rem; }
+
+.fallback-link {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+.fallback-link:hover { text-decoration: underline; }
+
+.metric-attribution {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+  margin-top: auto;
+}
+.metric-attribution a { color: var(--primary-light); text-decoration: none; }
+.metric-attribution a:hover { text-decoration: underline; }
+
+/* ── Toggle buttons (hourly / annual) ────────────────────────── */
+.metric-actions { flex-shrink: 0; }
+
+.toggle-group {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.toggle-btn {
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: background 0.15s, color 0.15s;
+}
+.toggle-btn:hover:not(:disabled) { background: #f1f5f9; color: var(--text); }
+.toggle-btn.active { background: var(--primary); color: #fff; }
+.toggle-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ══════════════════════════════════════
+   METRIC 1 & 7: Percentile Distribution
+   ══════════════════════════════════════ */
+
+.pct-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pct-source-badge {
+  font-size: 0.7rem;
+  color: var(--primary-light);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.pct-bar-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.pct-track {
+  position: relative;
+  height: 12px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  margin: 28px 0 0;
+}
+
+.pct-iqr {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: var(--primary-light);
+  opacity: 0.35;
+  border-radius: 999px;
+}
+
+.pct-mean-line {
+  position: absolute;
+  top: -26px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+.pct-mean-line::after {
+  content: '';
+  display: block;
+  width: 2px;
+  height: 38px;
+  background: var(--accent);
+  border-radius: 1px;
+  margin-top: 2px;
+}
+
+.pct-mean-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--accent-dark);
+  text-align: center;
+  white-space: nowrap;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 4px;
+  padding: 1px 5px;
+  line-height: 1.3;
+}
+
+.pct-median-line {
+  position: absolute;
+  top: -6px;
+  width: 3px;
+  height: 24px;
+  background: var(--primary);
+  border-radius: 2px;
+  transform: translateX(-50%);
+}
+
+.pct-labels {
+  position: relative;
+  height: 36px;
+  margin-top: 4px;
+}
+
+.pct-label {
+  position: absolute;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  pointer-events: none;
+}
+
+.pct-label-name {
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pct-label-val {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.pct-label-highlight .pct-label-name { color: var(--primary); }
+.pct-label-highlight .pct-label-val  { color: var(--primary); }
+
+.pct-note {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.pct-unavailable {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 8px 0;
+}
+
+/* Wage comparison rows (state vs national) */
+.wage-comparison {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+}
+
+.wage-comp-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+}
+
+.wage-comp-label { color: var(--text-muted); }
+.wage-comp-val { font-weight: 700; color: var(--text); }
+
+/* ══════════════════════════════════════
+   METRICS 3, 4, 5, 8: Employment & Geo
+   ══════════════════════════════════════ */
+
+.emp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+}
+
+.emp-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+
+.emp-stat-val {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--primary);
+  line-height: 1;
+}
+
+.emp-stat-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.emp-est {
+  font-style: italic;
+  color: #94a3b8;
+}
+
+/* Location Quotient gauge */
+.lq-gauge {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lq-bar-track {
+  position: relative;
+  height: 10px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: visible;
+}
+
+.lq-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+/* Vertical dashed line at LQ=1 (national average) */
+.lq-avg-line {
+  position: absolute;
+  top: -4px;
+  width: 2px;
+  height: 18px;
+  background: #475569;
+  border-radius: 1px;
+  transform: translateX(-50%);
+}
+.lq-avg-line::after {
+  content: '1.0';
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.6rem;
+  color: #475569;
+  white-space: nowrap;
+}
+
+.lq-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lq-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.lq-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* Top LQ states list */
+.lq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lq-list-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 0.8rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+.lq-list-row:last-child { border-bottom: none; }
+
+.lq-list-state {
+  font-weight: 700;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  min-width: 28px;
+}
+
+.lq-list-name {
+  flex: 1;
+  color: var(--text);
+}
+
+.lq-list-lq {
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+/* Metro vs nonmetro */
+.metro-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+}
+
+.metro-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  padding: 3px 0;
+}
+
+.metro-row-nonmetro {
+  border-top: 1px dashed var(--border);
+}
+
+.metro-label { color: var(--text-muted); }
+.metro-wage  { font-weight: 700; }
+
+/* State rankings list */
+.rank-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rank-row {
+  display: grid;
+  grid-template-columns: 28px 32px 1fr 80px;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: background 0.1s;
+}
+.rank-row:hover { background: #f8fafc; }
+.rank-row-selected {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+}
+
+.rank-num {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+.rank-state {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.rank-bar-track {
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.rank-bar-fill {
+  height: 100%;
+  background: var(--primary-light);
+  border-radius: 999px;
+}
+.rank-row-selected .rank-bar-fill { background: var(--accent); }
+
+.rank-wage {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text);
+  text-align: right;
+}
+
+.rank-ellipsis {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  padding: 2px 0;
+}
+
+/* ══════════════════════════════════════
+   METRICS 2 & 6: Industry Breakdown
+   ══════════════════════════════════════ */
+
+.ind-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.ind-header-row {
+  display: grid;
+  grid-template-columns: minmax(140px, 1.8fr) 1fr 1fr;
+  gap: 10px;
+  padding: 0 6px 8px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 2px solid var(--border);
+}
+
+.ind-row {
+  display: grid;
+  grid-template-columns: minmax(140px, 1.8fr) 1fr 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 7px 6px;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.1s;
+}
+.ind-row:hover { background: #f8fafc; }
+.ind-row:last-child { border-bottom: none; }
+
+.ind-name {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.ind-bar-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ind-bar-track {
+  flex: 1;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+  min-width: 30px;
+}
+
+.ind-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  opacity: 0.85;
+  transition: width 0.4s ease;
+}
+
+.ind-wage-bar { opacity: 0.7; }
+
+.ind-bar-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  min-width: 60px;
+  text-align: right;
+}
+
+.ind-na {
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
